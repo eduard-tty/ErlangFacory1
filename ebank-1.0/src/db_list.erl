@@ -18,6 +18,8 @@
 	, db_size/1
 	, lookup/2
 	, lookup_all/3
+	, update/2
+	, close/1
 ]).
 
 -export([test/0]).
@@ -47,13 +49,23 @@ lookup(AccountNumber, { db, Accounts } ) ->
 	
 lookup_all(AccountFieldIndex, Key, { db , Accounts } ) -> 
 	lists:filter( 
-		fun(Account) -> element(AccountFieldIndex, Account)	 == Key end, 
+		fun(Account) -> element(AccountFieldIndex, Account)	== Key	 end, 
 		Accounts 
 	).
+
+update(Account, { db, Accounts }) ->
+	Without = lists:filter(
+		fun( Acc ) -> element(#account.no, Acc) =/= element(#account.no, Account) end,
+		Accounts
+	),
+	{ db, [ Account | Without ] }.
+
+close( { db, _ } ) -> ok.
 
 test() -> 
 	Db = empty(),
 	Db2 = insert( #account{ no = 1, name = "Eduard"}, Db ),
 	Db3 = insert( #account{ no = 2, name = "Ward"}, Db2 ),
-	lookup_all(1, 2, Db3).
+	update( #account{ no=1, name = "Foo"}, Db3 ),
+	close(Db3).
 	
