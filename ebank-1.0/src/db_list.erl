@@ -17,6 +17,7 @@
 	, db_to_list/1
 	, db_size/1
 	, lookup/2
+	, lookup_all/3
 ]).
 
 -export([test/0]).
@@ -43,10 +44,16 @@ lookup(AccountNumber, { db, Accounts } ) ->
 		false -> {error, instance};
 		Account -> Account
 	end.
+	
+lookup_all(AccountFieldIndex, Key, { db , Accounts } ) -> 
+	lists:filter( 
+		fun(Account) -> element(AccountFieldIndex, Account)	 == Key end, 
+		Accounts 
+	).
 
 test() -> 
 	Db = empty(),
 	Db2 = insert( #account{ no = 1, name = "Eduard"}, Db ),
 	Db3 = insert( #account{ no = 2, name = "Ward"}, Db2 ),
-	lookup(2, Db3).
+	lookup_all(1, 2, Db3).
 	
